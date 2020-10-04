@@ -1,6 +1,7 @@
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Objects;
 
 public class Account {
     private final long id;
@@ -23,7 +24,7 @@ public class Account {
      */
     public boolean withdraw(double amount, Account beneficiary) {
         double currentBalance = balanceOn(LocalDate.now());
-        if(amount > 0 && currentBalance - amount >= 0){
+        if (amount > 0 && currentBalance - amount >= 0) {
             Transaction transaction = transactionManager.createTransaction(amount, this, beneficiary);
             transactionManager.executeTransaction(transaction);
             return true;
@@ -40,11 +41,18 @@ public class Account {
      * otherwise returns false
      */
     public boolean withdrawCash(double amount) {
-        // write your code here
+        double currentBalance = balanceOn(LocalDate.now());
+        if (amount > 0 && currentBalance - amount >= 0) {
+            Transaction transaction = transactionManager.createTransaction(amount, this, null);
+            transactionManager.executeTransaction(transaction);
+            return true;
+        }
+        return false;
     }
 
     /**
      * Adds cash money to account. <b>Should use TransactionManager to manage transactions</b>
+     *manage transactions</b>
      *
      * @param amount amount of money to add
      * @return true
@@ -52,20 +60,41 @@ public class Account {
      * otherwise returns false
      */
     public boolean addCash(double amount) {
-        // write your code here
+        if (amount > 0) {
+            Transaction transaction = transactionManager.createTransaction(amount, null, this);
+            transactionManager.executeTransaction(transaction);
+            return true;
+        }
+        return false;
     }
 
     public Collection<Entry> history(LocalDate from, LocalDate to) {
-        // write your code here
+        return entries.betweenDates(from, to);
     }
 
     /**
      * Calculates balance on the accounting entries basis
+     *
      * @param date
      * @return balance
      */
     public double balanceOn(LocalDate date) {
-        // write your code here
+        double balance = 0d;
+        for(Entry entry : entries.from(date)){
+            balance += getBalanceTransaction(entry.getTransaction());
+        }
+        return balance;
+    }
+
+    private double getBalanceTransaction(Transaction transaction){
+        if (transaction.isExecuted()){
+            if((transaction.isRolledBack() && this.equals(transaction.getBeneficiary())) ||
+                    (transaction.isExecuted() && this.equals(transaction.getOriginator()) && !transaction.isRolledBack())){
+                return -transaction.getAmount();
+            }
+            return transaction.getAmount();
+        }
+        return 0d;
     }
 
 
@@ -73,6 +102,23 @@ public class Account {
      * Finds the last transaction of the account and rollbacks it
      */
     public void rollbackLastTransaction() {
-        // write your code here
+        transactionManager.rollbackTransaction(entries.last().getTransaction());
+    }
+
+    public void addEntry(Entry entry){
+        entries.addEntry(entry);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Account account = (Account) o;
+        return id == account.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

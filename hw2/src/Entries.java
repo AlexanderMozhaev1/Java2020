@@ -1,31 +1,44 @@
-import javafx.collections.transformation.SortedList;
-
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.PriorityQueue;
-import java.util.SortedMap;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class Entries {
-    PriorityQueue<Entry> entries;
+    TreeMap<LocalDateTime, ArrayList<Entry>> entries;
+    private Entry lastEntry;
 
     public Entries() {
-        this.entries = new PriorityQueue<>((e1, e2)-> e1.getTime().compareTo(e2.getTime()));
+        this.entries = new TreeMap<>();
     }
 
     void addEntry(Entry entry) {
-        entries.add(entry);
+        lastEntry = entry;
+        ArrayList<Entry> transactionSet = entries.get(entry.getTime());
+        if (transactionSet != null) {
+            transactionSet.add(entry);
+        } else {
+            ArrayList<Entry> newTransactionSet = new ArrayList<>();
+            newTransactionSet.add(entry);
+            entries.put(entry.getTime(), newTransactionSet);
+        }
     }
 
     Collection<Entry> from(LocalDate date) {
-        entries.fi
+        ArrayList<Entry> res = new ArrayList<>();
+        LocalDateTime fromKey = date.atStartOfDay();
+        LocalDateTime toKey = fromKey.plusDays(1);
+        entries.subMap(fromKey, toKey).forEach((k, v)-> res.addAll(v));
+        return res;
     }
 
     Collection<Entry> betweenDates(LocalDate from, LocalDate to) {
-        // write your code here
+        ArrayList<Entry> res = new ArrayList<>();
+        LocalDateTime fromKey = from.atStartOfDay();
+        LocalDateTime toKey = to.atStartOfDay();
+        entries.subMap(fromKey, toKey).forEach((k, v)-> res.addAll(v));
+        return res;
     }
 
     Entry last() {
-        // write your code here
+        return lastEntry;
     }
 }

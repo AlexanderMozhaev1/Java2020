@@ -1,4 +1,5 @@
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * The record of allocating the amount to the account
@@ -11,7 +12,7 @@ public class Entry {
     private final LocalDateTime time;
 
     public Entry(Account account, Transaction transaction, double amount, LocalDateTime time) {
-        if(amount == 0){
+        if (amount == 0) {
             throw new IllegalArgumentException("Amount equals zero");
         }
         this.account = account;
@@ -19,7 +20,7 @@ public class Entry {
         this.amount = amount;
         this.time = time;
     }
-
+    public Transaction getTransaction() { return transaction; }
     public LocalDateTime getTime() {
         return time;
     }
