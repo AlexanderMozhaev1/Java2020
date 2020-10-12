@@ -20,7 +20,11 @@ public class Entry {
         this.amount = amount;
         this.time = time;
     }
-    public Transaction getTransaction() { return transaction; }
+
+    public Transaction getTransaction() {
+        return transaction;
+    }
+
     public LocalDateTime getTime() {
         return time;
     }

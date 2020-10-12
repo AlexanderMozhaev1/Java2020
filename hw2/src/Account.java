@@ -52,7 +52,7 @@ public class Account {
 
     /**
      * Adds cash money to account. <b>Should use TransactionManager to manage transactions</b>
-     *manage transactions</b>
+     * manage transactions</b>
      *
      * @param amount amount of money to add
      * @return true
@@ -80,16 +80,16 @@ public class Account {
      */
     public double balanceOn(LocalDate date) {
         double balance = 0d;
-        for(Entry entry : entries.from(date)){
+        for (Entry entry : entries.from(date)) {
             balance += getBalanceTransaction(entry.getTransaction());
         }
         return balance;
     }
 
-    private double getBalanceTransaction(Transaction transaction){
-        if (transaction.isExecuted()){
-            if((transaction.isRolledBack() && this.equals(transaction.getBeneficiary())) ||
-                    (transaction.isExecuted() && this.equals(transaction.getOriginator()) && !transaction.isRolledBack())){
+    private double getBalanceTransaction(Transaction transaction) {
+        if (transaction.isExecuted()) {
+            if ((transaction.isRolledBack() && this.equals(transaction.getBeneficiary())) ||
+                    (transaction.isExecuted() && this.equals(transaction.getOriginator()) && !transaction.isRolledBack())) {
                 return -transaction.getAmount();
             }
             return transaction.getAmount();
@@ -105,7 +105,7 @@ public class Account {
         transactionManager.rollbackTransaction(entries.last().getTransaction());
     }
 
-    public void addEntry(Entry entry){
+    public void addEntry(Entry entry) {
         entries.addEntry(entry);
     }
 

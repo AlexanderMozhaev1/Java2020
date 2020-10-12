@@ -12,29 +12,29 @@ public class AnalyticsManager {
     }
 
     public Account mostFrequentBeneficiaryOfAccount(Account account) {
-        Account resAccount = null;
-        Long max = 0l;
-        Map<Account, Long> beneficiaryCounter = transactionManager
+        Map<Account, Long> beneficiaryCounter = getCounterBeneficiary(account);
+
+        return beneficiaryCounter
+                .keySet()
+                .stream()
+                .max(Comparator.comparing((k) -> beneficiaryCounter.get(k)))
+                .get();
+    }
+
+    private Map<Account, Long> getCounterBeneficiary(Account account) {
+        return transactionManager
                 .findAllTransactionsByAccount(account)
                 .stream()
                 .filter(transaction -> transaction.getBeneficiary() != account)
-                .collect(Collectors.groupingBy(
-                        Transaction::getBeneficiary, Collectors.counting()));
-
-        for(Map.Entry<Account, Long> item : beneficiaryCounter.entrySet()){
-            if(item.getValue() > max){
-                max = item.getValue();
-                resAccount = item.getKey();
-            }
-        }
-        return resAccount;
+                .collect(Collectors.groupingBy(Transaction::getBeneficiary, Collectors.counting()));
     }
 
     public Collection<Transaction> topTenExpensivePurchases(Account account) {
         return transactionManager
                 .findAllTransactionsByAccount(account)
                 .stream()
-                .sorted(Comparator.comparing(Transaction::getAmount))
+                .filter(t -> t.isExecuted())
+                .sorted(Comparator.comparing(Transaction::getAmount).reversed())
                 .limit(10)
                 .collect(Collectors.toList());
     }

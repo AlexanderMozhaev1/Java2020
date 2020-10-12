@@ -24,9 +24,11 @@ public class Entries {
 
     Collection<Entry> from(LocalDate date) {
         ArrayList<Entry> res = new ArrayList<>();
-        LocalDateTime fromKey = date.atStartOfDay();
-        LocalDateTime toKey = fromKey.plusDays(1);
-        entries.subMap(fromKey, toKey).forEach((k, v)-> res.addAll(v));
+        LocalDateTime toKey = LocalDateTime.MAX;
+        if(!date.equals(LocalDate.MAX)){
+            toKey = date.atStartOfDay().plusDays(1);
+        }
+        entries.subMap(LocalDateTime.MIN, toKey).forEach((k, v) -> res.addAll(v));
         return res;
     }
 
@@ -34,7 +36,7 @@ public class Entries {
         ArrayList<Entry> res = new ArrayList<>();
         LocalDateTime fromKey = from.atStartOfDay();
         LocalDateTime toKey = to.atStartOfDay();
-        entries.subMap(fromKey, toKey).forEach((k, v)-> res.addAll(v));
+        entries.subMap(fromKey, toKey).forEach((k, v) -> res.addAll(v));
         return res;
     }
 

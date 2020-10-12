@@ -43,6 +43,7 @@ public class Transaction {
         }
         return new Transaction(id, amount, originator, beneficiary, executed, true);
     }
+
     public double getAmount() {
         return amount;
     }
@@ -63,6 +64,10 @@ public class Transaction {
         return rolledBack;
     }
 
+    public long getId() {
+        return id;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -80,4 +85,6 @@ public class Transaction {
     public int hashCode() {
         return Objects.hash(id, amount, originator, beneficiary, executed, rolledBack);
     }
+
+
 }

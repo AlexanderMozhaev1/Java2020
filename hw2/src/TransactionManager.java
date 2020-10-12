@@ -22,7 +22,7 @@ public class TransactionManager {
     public Transaction createTransaction(double amount,
                                          Account originator,
                                          Account beneficiary) {
-        Transaction transaction = new Transaction((long)(Math.random() * Long.MAX_VALUE), amount,
+        Transaction transaction = new Transaction((long) (Math.random() * Long.MAX_VALUE), amount,
                 originator, beneficiary, false, false);
         LocalDateTime localDateTime = LocalDateTime.now();
         addTransaction(originator, transaction, originatorStorage, localDateTime);
@@ -34,7 +34,7 @@ public class TransactionManager {
                                 Transaction transaction,
                                 HashMap<Account, ArrayList<Transaction>> storage,
                                 LocalDateTime localDateTime) {
-        if(account != null) {
+        if (account != null) {
             account.addEntry(new Entry(account, transaction, transaction.getAmount(), localDateTime));
             ArrayList<Transaction> transactionList = storage.get(account);
             if (transactionList != null) {
@@ -49,8 +49,12 @@ public class TransactionManager {
 
     public Collection<Transaction> findAllTransactionsByAccount(Account account) {
         ArrayList<Transaction> listAllTransactionsByAccount = new ArrayList<>();
-        listAllTransactionsByAccount.addAll(originatorStorage.get(account));
-        listAllTransactionsByAccount.addAll(beneficiaryStorage.get(account));
+        if (originatorStorage.get(account) != null) {
+            listAllTransactionsByAccount.addAll(originatorStorage.get(account));
+        }
+        if (beneficiaryStorage.get(account) != null) {
+            listAllTransactionsByAccount.addAll(beneficiaryStorage.get(account));
+        }
         return listAllTransactionsByAccount;
     }
 
@@ -58,32 +62,14 @@ public class TransactionManager {
     public void rollbackTransaction(Transaction transaction) {
         Transaction transactionRollback = transaction.rollback();
         LocalDateTime localDateTime = LocalDateTime.now();
-        addTransaction(transaction.getOriginator(), transactionRollback, originatorStorage, localDateTime);
-        addTransaction(transaction.getBeneficiary(), transactionRollback, beneficiaryStorage, localDateTime);
+        addTransaction(transaction.getBeneficiary(), transactionRollback, originatorStorage, localDateTime);
+        addTransaction(transaction.getOriginator(), transactionRollback, beneficiaryStorage, localDateTime);
     }
 
     public void executeTransaction(Transaction transaction) {
         LocalDateTime localDateTime = LocalDateTime.now();
         Transaction transactionExecute = transaction.execute();
-        addTransaction(transaction.getOriginator(), transactionExecute, originatorStorage, localDateTime);
-        addTransaction(transaction.getBeneficiary(), transactionExecute, beneficiaryStorage, localDateTime);
-    }
-
-    public Account mostFrequentBeneficiaryOfAccount(Account account) {
-        Account resAccount = null;
-        Long max = 0l;
-        Map<Account, Long> beneficiaryCounter = beneficiaryStorage
-                .get(account)
-                .stream()
-                .collect(Collectors.groupingBy(Transaction::getBeneficiary, Collectors.counting()));
-
-        for(Map.Entry<Account, Long> item : beneficiaryCounter.entrySet()){
-            if(item.getValue() > max){
-                max = item.getValue();
-                resAccount = item.getKey();
-            }
-        }
-
-        return resAccount;
+        addTransaction(transaction.getBeneficiary(), transactionExecute, originatorStorage, localDateTime);
+        addTransaction(transaction.getOriginator(), transactionExecute, beneficiaryStorage, localDateTime);
     }
 }

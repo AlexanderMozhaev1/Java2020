@@ -67,6 +67,7 @@ class AccountTest {
         assertTrue(account1.withdrawCash(100));
         assertEquals(account1.balanceOn(LocalDate.now()), 0);
     }
+
     @Test
     void addCash() {
         TransactionManager transactionManager = new TransactionManager();
